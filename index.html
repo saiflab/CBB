@@ -1,928 +1,810 @@
-<!DOCTYPE html> 
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Charlotte Bioinformatics Bootcamp</title>
-    
-    <!-- React & ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    
-    <!-- Babel for JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Github, 
+  Linkedin, 
+  Twitter, 
+  Facebook, 
+  Instagram, 
+  Mail, 
+  Menu, 
+  X, 
+  ChevronDown, 
+  ExternalLink,
+  Beaker,
+  Dna,
+  Code,
+  Database,
+  BookOpen,
+  Award,
+  Users,
+  Microscope,
+  Cpu,
+  MapPin,
+  Calendar,
+  FileText,
+  Layers,
+  GraduationCap
+} from 'lucide-react';
 
-    <style>
-        /* Custom Animations */
-        @keyframes fade-in-up {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in-up {
-            animation: fade-in-up 0.8s ease-out forwards;
-        }
-    </style>
-</head>
-<body class="bg-slate-50">
-    <div id="root"></div>
+/**
+ * ==================================================================================
+ * USER CONFIGURATION SECTION
+ * Update the URLs below to use your own images.
+ * ==================================================================================
+ */
+const PORTFOLIO_DATA = {
+  personal: {
+    name: "Ahmed Saif",
+    title: "RESEARCHER | WRITER | READER",
+    greeting: "Hello! This is Ahmed Saif",
+    subGreeting: "You're Welcome!",
+    location: "Rajshahi, Bangladesh",
+    email: "ahmedsaif@example.com", 
+    socials: {
+      linkedin: "#",
+      twitter: "#",
+      facebook: "#",
+      instagram: "#"
+    }
+  },
+  images: {
+    heroBackground: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=2073&auto=format&fit=crop",
+    aboutPortrait: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=1000&auto=format&fit=crop",
+    skillsBackground: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2070&auto=format&fit=crop",
+    gallery: [
+      "https://images.unsplash.com/photo-1581093458891-2f308909ee39?q=80&w=1000&auto=format&fit=crop", 
+      "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=1000&auto=format&fit=crop", 
+      "https://images.unsplash.com/photo-1576086213369-97a306d36557?q=80&w=1000&auto=format&fit=crop", 
+      "https://images.unsplash.com/photo-1582719508461-905c673771fd?q=80&w=1000&auto=format&fit=crop"  
+    ]
+  },
+  education: [
+    {
+      degree: "Masters in Pharmacy",
+      period: "2024 - Present",
+      institution: "University of Rajshahi, Bangladesh",
+      description: "Specializing in Pharmaceutical Sciences and Bioinformatics.",
+      // Placeholder for Logo - Replace with actual URL
+      logo: "https://upload.wikimedia.org/wikipedia/en/2/23/University_of_Rajshahi_emblem.svg" 
+    },
+    {
+      degree: "Bachelor in Pharmacy",
+      period: "2019 - 2024",
+      institution: "University of Rajshahi, Bangladesh",
+      description: "Graduated with honors. Foundation in wet lab techniques and drug discovery.",
+      logo: "https://upload.wikimedia.org/wikipedia/en/2/23/University_of_Rajshahi_emblem.svg"
+    }
+  ],
+  experience: [
+    {
+      role: "Research Assistant",
+      lab: "Bioinformatics Laboratory",
+      institution: "University of Rajshahi",
+      supervisor: "Dr. Md. Nurul Haque Mollah",
+      period: "April 2024 - Present"
+    },
+    {
+      role: "Research Assistant",
+      lab: "CHIRAL-Bangladesh",
+      institution: "Center for Health Innovation",
+      supervisor: "Md. Jubayer Hossain",
+      period: "Jan 2024 - Present"
+    },
+    {
+      role: "Research Assistant",
+      lab: "Biological Research on the Brain (BRB)",
+      institution: "Neuroscience Research",
+      supervisor: "Dr. Md. Obayed Raihan",
+      period: "Oct 2023 - Present"
+    }
+  ],
+  skills: {
+    dry: [
+      "Single-cell RNA-seq", "Bulk RNA-seq", "Microarray Analysis", "Omics Data Analysis", 
+      "Python", "Machine Learning", "Deep Learning", "R Programming", 
+      "Molecular Docking", "MD Simulations", "QSAR", "Linux OS"
+    ],
+    wet: [
+      "DNA/RNA Isolation", "Protein Isolation", "Dosage Formulations", "Bacterial Cell Culture", 
+      "HPLC", "PCR", "GC-MS", "RT-qPCR", "UV Vis Spectroscopy"
+    ]
+  },
+  research: {
+    published: [
+      {
+        title: "Pan-cancer analysis of CDC7 in human tumors",
+        journal: "Computers in Biology and Medicine",
+        impactFactor: "7.7",
+        authors: "Saif, A., et al.",
+        year: "2025"
+      },
+      {
+        title: "Identification of acetylcholinesterase inhibitors",
+        journal: "RSC Advances",
+        impactFactor: "3.9",
+        authors: "Islam MT... Saif A, et al.",
+        year: "2024"
+      }
+    ],
+    submitted: [
+      {
+        title: "Bioinformatics Screening in Glioblastoma Multiforme",
+        journal: "Frontiers in Pharmacology",
+        impactFactor: "4.4",
+        authors: "Saif, A., et al."
+      },
+      {
+        title: "Oroxylum indicum Bark ameliorates anxiety",
+        journal: "Food Science and Nutrition",
+        impactFactor: "3.5",
+        authors: "Aktaruzzaman, M... Saif, A., et al."
+      }
+    ],
+    seminars: [
+      {
+        title: "Identification of Novel compounds targeting KRAS",
+        event: "International Conference on Advances in Biological Sciences",
+        date: "April 2024",
+        type: "Poster Presentation"
+      },
+      {
+        title: "A Pan Cancer Analysis of SUV39H1",
+        event: "National Conference on Genome Sequencing",
+        date: "Dec 2023",
+        type: "Oral Presentation"
+      }
+    ],
+    currentProjects: [
+      {
+        title: "ATMeQ: ALS Diagnostic Framework",
+        status: "Ongoing",
+        desc: "Developing a Machine Learning-Based Diagnostic Framework for Amyotrophic Lateral Sclerosis (ALS) using RNA-seq Meta Analysis.",
+        image: "https://images.unsplash.com/photo-1579165466741-7f35a4755657?q=80&w=1000&auto=format&fit=crop",
+        tech: "Machine Learning"
+      },
+      {
+        title: "Neuro-Degenerative Disease Detection",
+        status: "Ongoing",
+        desc: "Deep Learning-Based Framework for Alzheimer's and Parkinson's Disease Detection through RNA-Seq Meta-Analysis.",
+        image: "https://images.unsplash.com/photo-1559757175-5700dde675bc?q=80&w=1000&auto=format&fit=crop",
+        tech: "Deep Learning"
+      }
+    ]
+  },
+  mentors: [
+    {
+      name: "Dr. Md. Nurul Haque Mollah",
+      title: "Professor, Dept of Statistics",
+      uni: "University of Rajshahi",
+      color: "bg-purple-600"
+    },
+    {
+      name: "Dr. Md. Ajijur Rahman",
+      title: "Professor, Dept of Pharmacy",
+      uni: "University of Rajshahi",
+      color: "bg-indigo-600"
+    },
+    {
+      name: "Dr. Md. Obayed Raihan",
+      title: "Assistant Professor",
+      uni: "Chicago State University, USA",
+      color: "bg-violet-600"
+    }
+  ]
+};
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
+// --- COMPONENTS ---
 
-        const App = () => {
-            const [activeTab, setActiveTab] = useState('home');
-            const [isMenuOpen, setIsMenuOpen] = useState(false);
+const FadeIn = ({ children, delay = 0, className = "" }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const domRef = useRef();
 
-            useEffect(() => {
-                window.scrollTo(0, 0);
-                setIsMenuOpen(false);
-            }, [activeTab]);
+  useEffect(() => {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => setIsVisible(entry.isIntersecting));
+    });
+    const currentRef = domRef.current;
+    if (currentRef) observer.observe(currentRef);
+    return () => {
+      if (currentRef) observer.unobserve(currentRef);
+    };
+  }, []);
 
-            const navItems = [
-                { id: 'home', label: 'Home' },
-                { id: 'about', label: 'About' },
-                { id: 'curriculum', label: 'Curriculum' },
-                { id: 'schedule', label: 'Schedule' },
-                { id: 'students', label: 'For Students' },
-                { id: 'teachers', label: 'For Teachers' },
-                { id: 'team', label: 'Team' },
-                { id: 'resources', label: 'Resources' },
-                { id: 'faq', label: 'FAQ' },
-                { id: 'contact', label: 'Contact' },
-            ];
+  return (
+    <div
+      ref={domRef}
+      style={{ transitionDelay: `${delay}ms` }}
+      className={`transition-all duration-1000 ease-out transform ${
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
+      } ${className}`}
+    >
+      {children}
+    </div>
+  );
+};
 
-            // --- Components ---
+const SectionHeader = ({ title, subtitle, light = false }) => (
+  <div className="mb-12 text-center">
+    <h2 className={`text-4xl md:text-5xl font-bold font-serif mb-4 ${light ? 'text-white' : 'text-slate-800'}`}>
+      {title}
+    </h2>
+    <div className={`h-1.5 w-24 mx-auto rounded-full ${light ? 'bg-blue-400' : 'bg-blue-600'}`} />
+    {subtitle && (
+      <p className={`mt-4 text-lg font-light tracking-wide ${light ? 'text-blue-100' : 'text-slate-600'}`}>{subtitle}</p>
+    )}
+  </div>
+);
 
-            const Hero = () => (
-                <div className="relative bg-slate-900 text-white overflow-hidden">
-                    {/* Abstract DNA Background Effect */}
-                    <div className="absolute inset-0 opacity-20">
-                        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,_rgba(74,222,128,0.2),_transparent_50%)]"></div>
-                        <div className="grid grid-cols-12 h-full w-full opacity-30">
-                            {[...Array(12)].map((_, i) => (
-                                <div key={i} className="border-r border-slate-700 h-full"></div>
-                            ))}
-                        </div>
-                    </div>
+const NavBar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
-                    <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 flex flex-col items-center text-center">
-                        <div className="inline-flex items-center space-x-2 bg-slate-800 rounded-full px-4 py-1.5 mb-8 border border-green-500/50 animate-fade-in-up">
-                            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-                            <span className="text-green-400 font-medium text-sm tracking-wide">Next Cohort: Summer 2026</span>
-                        </div>
-                        
-                        <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6">
-                            Charlotte <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">Bioinformatics</span> Bootcamp
-                        </h1>
-                        
-                        <p className="text-xl md:text-2xl text-slate-300 max-w-3xl mb-8 font-light">
-                            Where Biology Meets Code. A 2-Day Free Genomics & Coding Workshop for Future Scientists.
-                        </p>
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            <button 
-                                onClick={() => setActiveTab('apply')}
-                                className="px-8 py-4 bg-green-500 hover:bg-green-600 text-slate-900 font-bold rounded-lg transition shadow-[0_0_20px_rgba(74,222,128,0.4)] flex items-center justify-center gap-2"
-                            >
-                                Apply Now <i className="fa-solid fa-chevron-right ml-2"></i>
-                            </button>
-                            <button 
-                                onClick={() => setActiveTab('about')}
-                                className="px-8 py-4 bg-slate-800 hover:bg-slate-700 text-white font-semibold rounded-lg border border-slate-600 transition flex items-center justify-center"
-                            >
-                                Learn More
-                            </button>
-                        </div>
-                    </div>
+  const navLinks = [
+    { name: "Home", href: "#home" },
+    { name: "About", href: "#about" },
+    { name: "Education", href: "#education" },
+    { name: "Experience", href: "#experience" },
+    { name: "Skills", href: "#skills" },
+    { name: "Research", href: "#research" },
+  ];
+
+  return (
+    <nav className={`fixed w-full z-50 transition-all duration-500 ${scrolled ? 'bg-slate-900/95 backdrop-blur-xl shadow-2xl py-3' : 'bg-transparent py-6'}`}>
+      <div className="max-w-7xl mx-auto px-6 flex justify-between items-center text-white">
+        <a href="#" className="text-2xl font-bold tracking-widest font-serif border-2 border-white px-3 py-1 hover:bg-white hover:text-slate-900 transition-colors duration-300">
+          AS
+        </a>
+
+        {/* Desktop Nav */}
+        <div className="hidden md:flex space-x-8 text-sm font-medium tracking-widest uppercase">
+          {navLinks.map((link) => (
+            <a key={link.name} href={link.href} className="hover:text-blue-400 transition-colors relative group">
+              {link.name}
+              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
+            </a>
+          ))}
+        </div>
+
+        {/* Mobile Menu Button */}
+        <button onClick={() => setIsOpen(!isOpen)} className="md:hidden">
+          {isOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
+      </div>
+
+      {/* Mobile Nav */}
+      {isOpen && (
+        <div className="md:hidden absolute top-full left-0 w-full bg-slate-900 shadow-xl border-t border-slate-800">
+          <div className="flex flex-col p-6 space-y-4 text-center">
+            {navLinks.map((link) => (
+              <a 
+                key={link.name} 
+                href={link.href} 
+                onClick={() => setIsOpen(false)}
+                className="text-white hover:text-blue-400 py-2 uppercase tracking-widest font-medium"
+              >
+                {link.name}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+};
+
+// --- SECTIONS ---
+
+const Hero = () => (
+  <section id="home" className="relative h-screen flex items-center justify-center overflow-hidden">
+    {/* Background Image with Overlay */}
+    <div className="absolute inset-0 z-0">
+      <img 
+        src={PORTFOLIO_DATA.images.heroBackground} 
+        alt="Hero Background" 
+        className="w-full h-full object-cover scale-105 animate-[pulse_20s_infinite_alternate]"
+      />
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-900/40 via-slate-900/20 to-slate-900/90"></div>
+    </div>
+
+    <div className="relative z-10 text-center px-4 max-w-5xl mx-auto flex flex-col items-center">
+      <FadeIn delay={100} className="w-full">
+         <div className="mb-6 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-blue-100 text-sm font-medium tracking-wider uppercase">
+            <Beaker size={14} /> Innovating Healthcare
+         </div>
+         
+         <h1 className="text-5xl md:text-8xl font-serif font-bold text-white leading-tight mb-2 drop-shadow-2xl">
+           {PORTFOLIO_DATA.personal.greeting.split("Hello! This is ")[1]}
+         </h1>
+         <p className="font-cursive text-3xl md:text-4xl text-blue-200 mb-8 opacity-90">{PORTFOLIO_DATA.personal.subGreeting}</p>
+      </FadeIn>
+      
+      <FadeIn delay={300}>
+        <div className="flex flex-col md:flex-row items-center gap-4 text-sm font-bold tracking-[0.2em] text-white/90">
+           <span>RESEARCHER</span>
+           <span className="hidden md:inline w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+           <span>WRITER</span>
+           <span className="hidden md:inline w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+           <span>READER</span>
+        </div>
+      </FadeIn>
+
+      <FadeIn delay={500}>
+        <div className="mt-16 animate-bounce text-white/50">
+          <ChevronDown size={32} />
+        </div>
+      </FadeIn>
+    </div>
+  </section>
+);
+
+const About = () => (
+  <section id="about" className="py-24 bg-white relative overflow-hidden">
+    <div className="max-w-7xl mx-auto px-6 relative z-10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        
+        {/* Left Column: Text Content */}
+        <div className="order-1 lg:order-1 flex flex-col justify-center">
+          <FadeIn delay={200}>
+            <h2 className="text-blue-600 font-bold tracking-widest uppercase mb-4">About Me</h2>
+            
+            <p className="text-slate-600 leading-relaxed text-lg mb-6">
+              I am a Master's student in Pharmacy at the <strong className="text-slate-900">University of Rajshahi</strong>. 
+              My passion lies at the intersection of <span className="font-semibold text-blue-600">Bioinformatics, AI, and Drug Discovery</span>.
+              My goal is to alleviate human suffering by discovering novel therapeutics through computational intelligence.
+            </p>
+
+             <p className="text-slate-600 leading-relaxed text-lg mb-8">
+              Beyond the lab, I am a traveler, anime enthusiast, and mindfulness practitioner. I believe in the power of continuous learning and interdisciplinary collaboration to solve complex biological problems.
+            </p>
+
+            <div className="flex gap-4">
+              {Object.keys(PORTFOLIO_DATA.personal.socials).map((key) => (
+                <a key={key} href={PORTFOLIO_DATA.personal.socials[key]} className="p-3 bg-white border border-slate-200 rounded-full text-slate-600 hover:bg-slate-900 hover:text-white hover:border-slate-900 transition-all duration-300 shadow-sm">
+                  {key === 'linkedin' && <Linkedin size={20} />}
+                  {key === 'twitter' && <Twitter size={20} />}
+                  {key === 'facebook' && <Facebook size={20} />}
+                  {key === 'instagram' && <Instagram size={20} />}
+                </a>
+              ))}
+              <a href={`mailto:${PORTFOLIO_DATA.personal.email}`} className="flex-1 bg-slate-900 text-white rounded-full flex items-center justify-center font-bold tracking-wide hover:bg-blue-600 transition-colors shadow-lg">
+                 Contact Me
+              </a>
+            </div>
+          </FadeIn>
+        </div>
+
+        {/* Right Column: Image */}
+        <div className="order-2 lg:order-2">
+          <FadeIn>
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl h-[500px] group border-8 border-white">
+              <img 
+                src={PORTFOLIO_DATA.images.aboutPortrait} 
+                alt="Ahmed Saif" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent flex flex-col justify-end p-8">
+                <div className="text-white">
+                  <div className="flex items-center gap-2 text-xl font-serif">
+                    <MapPin size={20} className="text-blue-400"/> {PORTFOLIO_DATA.personal.location}
+                  </div>
                 </div>
-            );
+              </div>
+            </div>
+          </FadeIn>
+        </div>
 
-            const Highlights = () => (
-                <div className="py-16 bg-white">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="grid md:grid-cols-3 gap-8">
-                            {/* Card 1 */}
-                            <div className="p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
-                                <div className="w-14 h-14 bg-blue-100 rounded-xl flex items-center justify-center mb-6">
-                                    <i className="fa-solid fa-dna text-blue-600 text-2xl"></i>
-                                </div>
-                                <h3 className="text-xl font-bold text-slate-900 mb-3">Real Research Data</h3>
-                                <p className="text-slate-600">
-                                    Students analyze actual RNA-seq, DNA-seq, CUT&Tag, and single-particle tracking data from active labs.
-                                </p>
-                            </div>
+      </div>
+    </div>
+  </section>
+);
 
-                            {/* Card 2 */}
-                            <div className="p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
-                                <div className="w-14 h-14 bg-green-100 rounded-xl flex items-center justify-center mb-6">
-                                    <i className="fa-solid fa-terminal text-green-600 text-2xl"></i>
-                                </div>
-                                <h3 className="text-xl font-bold text-slate-900 mb-3">Beginner-Friendly Coding</h3>
-                                <p className="text-slate-600">
-                                    No experience needed. Learn Python or R through guided, interactive notebooks designed for biologists.
-                                </p>
-                            </div>
-
-                            {/* Card 3 */}
-                            <div className="p-8 rounded-2xl bg-slate-50 border border-slate-100 shadow-lg hover:shadow-xl transition transform hover:-translate-y-1">
-                                <div className="w-14 h-14 bg-purple-100 rounded-xl flex items-center justify-center mb-6">
-                                    <i className="fa-solid fa-users text-purple-600 text-2xl"></i>
-                                </div>
-                                <h3 className="text-xl font-bold text-slate-900 mb-3">Career Mentorship</h3>
-                                <p className="text-slate-600">
-                                    Connect with researchers, industry scientists, and grad students to plan your future in STEM.
-                                </p>
-                            </div>
-                        </div>
-                    </div>
+const Education = () => (
+  <section id="education" className="py-24 bg-slate-50">
+    <div className="max-w-4xl mx-auto px-6">
+      <SectionHeader title="Education" subtitle="My Academic Foundation" />
+      <div className="space-y-6">
+        {PORTFOLIO_DATA.education.map((edu, idx) => (
+          <FadeIn key={idx} delay={idx * 100}>
+            <div className="group relative bg-white p-8 rounded-2xl border border-slate-100 shadow-lg hover:shadow-xl hover:border-blue-100 transition-all duration-300">
+              <div className="absolute top-0 left-0 w-1 h-full bg-blue-600 rounded-l-2xl group-hover:w-2 transition-all"></div>
+              <div className="flex flex-col md:flex-row gap-6">
+                
+                {/* Logo Section */}
+                <div className="w-20 h-20 shrink-0 bg-white rounded-xl shadow-sm border border-slate-100 flex items-center justify-center p-2">
+                  {edu.logo ? (
+                    <img src={edu.logo} alt={edu.institution} className="w-full h-full object-contain" />
+                  ) : (
+                    <GraduationCap size={32} className="text-blue-600" />
+                  )}
                 </div>
-            );
 
-            const ImpactStats = () => (
-                <div className="bg-slate-900 py-16 border-t border-slate-800">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="grid md:grid-cols-3 gap-8 text-center">
-                            <div>
-                                <div className="text-4xl md:text-5xl font-bold text-green-400 mb-2">100+</div>
-                                <div className="text-slate-400 font-medium uppercase tracking-wider text-sm">Students Trained</div>
-                            </div>
-                            <div>
-                                <div className="text-4xl md:text-5xl font-bold text-blue-400 mb-2">75%</div>
-                                <div className="text-slate-400 font-medium uppercase tracking-wider text-sm">First-Gen or URM Participants</div>
-                            </div>
-                            <div>
-                                <div className="text-4xl md:text-5xl font-bold text-purple-400 mb-2">95%</div>
-                                <div className="text-slate-400 font-medium uppercase tracking-wider text-sm">Increased Coding Confidence</div>
-                            </div>
-                        </div>
-                    </div>
+                <div className="flex-1">
+                  <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-2">
+                    <h3 className="text-2xl font-bold text-slate-800 group-hover:text-blue-700 transition-colors">{edu.degree}</h3>
+                    <span className="inline-block px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-full uppercase tracking-wider mt-2 md:mt-0">
+                      {edu.period}
+                    </span>
+                  </div>
+                  <p className="text-lg text-slate-700 font-medium mb-2 flex items-center gap-2">
+                    {edu.institution}
+                  </p>
+                  <p className="text-slate-500 leading-relaxed">{edu.description}</p>
                 </div>
-            );
+              </div>
+            </div>
+          </FadeIn>
+        ))}
+      </div>
+    </div>
+  </section>
+);
 
-            const renderAbout = () => (
-                <div className="bg-slate-50 min-h-screen py-16">
-                    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="text-center mb-16">
-                            <h2 className="text-3xl font-bold text-slate-900 mb-4">About the Program</h2>
-                            <div className="w-20 h-1 bg-green-500 mx-auto rounded-full"></div>
-                        </div>
+const Experience = () => (
+  <section id="experience" className="py-24 bg-white">
+    <div className="max-w-6xl mx-auto px-6">
+      <SectionHeader title="Research History" subtitle="Professional Timeline" />
+      
+      <div className="relative ml-4 md:ml-12 space-y-12">
+        {/* Continuous Line */}
+        <div className="absolute left-0 top-2 bottom-2 w-0.5 bg-slate-200"></div>
 
-                        <div className="bg-white rounded-2xl shadow-sm p-8 mb-8 border-l-4 border-green-500">
-                            <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
-                                <i className="fa-solid fa-microscope text-green-600"></i> Mission Statement
-                            </h3>
-                            <p className="text-lg text-slate-700 leading-relaxed">
-                                The Charlotte Bioinformatics Bootcamp aims to expand access to computational biology by empowering underrepresented students with hands-on training in genomics, coding, machine learning, and molecular biology.
-                            </p>
-                        </div>
-
-                        <div className="grid md:grid-cols-2 gap-8 mb-12">
-                            <div className="bg-white p-8 rounded-2xl shadow-sm">
-                                <h3 className="text-lg font-bold text-slate-900 mb-4">Who We Serve</h3>
-                                <ul className="space-y-3 text-slate-600">
-                                    <li className="flex items-start gap-2"><i className="fa-solid fa-circle-check text-green-500 mt-1"></i> URM high school juniors & seniors</li>
-                                    <li className="flex items-start gap-2"><i className="fa-solid fa-circle-check text-green-500 mt-1"></i> Community college STEM students</li>
-                                    <li className="flex items-start gap-2"><i className="fa-solid fa-circle-check text-green-500 mt-1"></i> First-generation undergraduates</li>
-                                </ul>
-                            </div>
-                            <div className="bg-white p-8 rounded-2xl shadow-sm">
-                                <h3 className="text-lg font-bold text-slate-900 mb-4">Philosophy</h3>
-                                <ul className="space-y-3 text-slate-600">
-                                    <li className="flex items-start gap-2"><i className="fa-solid fa-circle-check text-blue-500 mt-1"></i> "Code is just another lab tool"</li>
-                                    <li className="flex items-start gap-2"><i className="fa-solid fa-circle-check text-blue-500 mt-1"></i> Learning by doing</li>
-                                    <li className="flex items-start gap-2"><i className="fa-solid fa-circle-check text-blue-500 mt-1"></i> Inclusive & supportive environment</li>
-                                </ul>
-                            </div>
-                        </div>
-
-                        <div className="bg-slate-900 text-white rounded-2xl p-8 shadow-xl">
-                            <h3 className="text-xl font-bold mb-4">What Makes Us Unique?</h3>
-                            <div className="grid md:grid-cols-2 gap-6">
-                                <div>
-                                    <h4 className="font-bold text-green-400 mb-2">Real Data</h4>
-                                    <p className="text-slate-300 text-sm">We use real Polycomb/epigenetics datasets, not just textbook examples.</p>
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-green-400 mb-2">Expert Instructors</h4>
-                                    <p className="text-slate-300 text-sm">Designed & taught by active UNC Charlotte researchers and PhD candidates.</p>
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-green-400 mb-2">Biology First</h4>
-                                    <p className="text-slate-300 text-sm">We blend wet-lab biology concepts with code seamlessly.</p>
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-green-400 mb-2">100% Free</h4>
-                                    <p className="text-slate-300 text-sm">Tuition, materials, and lunch are completely covered.</p>
-                                </div>
-                            </div>
-                        </div>
+        {PORTFOLIO_DATA.experience.map((exp, idx) => (
+          <FadeIn key={idx} delay={idx * 100}>
+            <div className="relative pl-12 md:pl-16">
+              
+              {/* Timeline Node */}
+              <div className="absolute -left-[9px] top-6 w-5 h-5 rounded-full bg-white border-4 border-blue-500 shadow-md z-10 group-hover:scale-125 transition-transform"></div>
+              
+              <div className="bg-slate-50 p-6 md:p-8 rounded-2xl border border-slate-100 hover:border-blue-200 hover:shadow-lg transition-all duration-300">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 border-b border-slate-200 pb-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-slate-900">{exp.role}</h3>
+                    <div className="flex items-center gap-2 mt-1">
+                       <h4 className="text-blue-600 font-semibold">{exp.lab}</h4>
                     </div>
+                  </div>
+                  <span className="inline-flex items-center gap-2 px-4 py-2 bg-white text-slate-700 text-sm font-bold rounded-lg shadow-sm border border-slate-100 whitespace-nowrap">
+                    <Calendar size={14} className="text-blue-500"/>
+                    {exp.period}
+                  </span>
                 </div>
-            );
 
-            const renderCurriculum = () => (
-                <div className="py-16 bg-white">
-                    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="text-center mb-16">
-                            <h2 className="text-3xl font-bold text-slate-900 mb-4">Curriculum Overview</h2>
-                            <p className="text-slate-600">Two days of intensive, hands-on learning.</p>
-                        </div>
-
-                        {/* Day 1 */}
-                        <div className="mb-12">
-                            <div className="flex items-center gap-4 mb-6">
-                                <div className="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xl">1</div>
-                                <h3 className="text-2xl font-bold text-slate-900">Day 1: Foundations</h3>
-                            </div>
-                            
-                            <div className="grid md:grid-cols-2 gap-6">
-                                <div className="border border-slate-200 rounded-xl p-6 hover:border-blue-300 transition">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <i className="fa-solid fa-dna text-blue-500 text-xl"></i>
-                                        <h4 className="font-bold text-lg">Module 1: Gene Regulation & Genomics Basics</h4>
-                                    </div>
-                                    <ul className="list-disc list-inside text-slate-600 space-y-2 text-sm">
-                                        <li>What genomics studies & why it matters</li>
-                                        <li>Why cells differ with the same DNA</li>
-                                        <li>3D genome, enhancers, histone marks, Polycomb</li>
-                                        <li>Chromatin model-building activity</li>
-                                    </ul>
-                                </div>
-
-                                <div className="border border-slate-200 rounded-xl p-6 hover:border-blue-300 transition">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <i className="fa-solid fa-terminal text-blue-500 text-xl"></i>
-                                        <h4 className="font-bold text-lg">Module 2: Coding for Beginners</h4>
-                                    </div>
-                                    <ul className="list-disc list-inside text-slate-600 space-y-2 text-sm">
-                                        <li>What datasets look like (CSV, metadata)</li>
-                                        <li>Variables, functions, simple plotting</li>
-                                        <li>Load data → calculate basic stats → generate plots</li>
-                                        <li><strong>Activity:</strong> Guided Jupyter/R Notebook visualization</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Day 2 */}
-                        <div>
-                            <div className="flex items-center gap-4 mb-6">
-                                <div className="w-12 h-12 rounded-full bg-green-600 text-white flex items-center justify-center font-bold text-xl">2</div>
-                                <h3 className="text-2xl font-bold text-slate-900">Day 2: Applied Genomics</h3>
-                            </div>
-                            
-                            <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-6">
-                                {/* Module 3 */}
-                                <div className="border border-slate-200 rounded-xl p-6 hover:border-green-300 transition">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <i className="fa-solid fa-file-lines text-green-500 text-xl"></i>
-                                        <h4 className="font-bold text-lg">Module 3: Genomics + Chromatin Integration</h4>
-                                    </div>
-                                    <ul className="list-disc list-inside text-slate-600 space-y-2 text-sm">
-                                        <li>RNA-seq: normalization, volcano plot, gene changes</li>
-                                        <li>DNA-seq: variant identification & IGV visualization</li>
-                                        <li>Chromatin signals: Polycomb peak tracks</li>
-                                        <li>Connect: Variant → Chromatin → Gene Expression</li>
-                                    </ul>
-                                </div>
-
-                                {/* Module 4 */}
-                                <div className="border border-slate-200 rounded-xl p-6 hover:border-green-300 transition">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <i className="fa-solid fa-microscope text-green-500 text-xl"></i>
-                                        <h4 className="font-bold text-lg">Module 4: Imaging + Machine Learning</h4>
-                                    </div>
-                                    <ul className="list-disc list-inside text-slate-600 space-y-2 text-sm">
-                                        <li>Single-molecule tracking: trajectories & motion patterns</li>
-                                        <li>ML: use imaging features to interpret molecular behavior</li>
-                                    </ul>
-                                </div>
-
-                                {/* Module 5 */}
-                                <div className="border border-slate-200 rounded-xl p-6 hover:border-green-300 transition">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <i className="fa-solid fa-graduation-cap text-green-500 text-xl"></i>
-                                        <h4 className="font-bold text-lg">Module 5: Career Design</h4>
-                                    </div>
-                                    <ul className="list-disc list-inside text-slate-600 space-y-2 text-sm">
-                                        <li>PhD vs Biotech vs Clinical</li>
-                                        <li>Cold-emailing labs</li>
-                                        <li>Building a scientific LinkedIn</li>
-                                    </ul>
-                                </div>
-
-                                {/* Module 6 */}
-                                <div className="border border-slate-200 rounded-xl p-6 hover:border-green-300 transition">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <i className="fa-solid fa-certificate text-green-500 text-xl"></i>
-                                        <h4 className="font-bold text-lg">Module 6: Certificates & Group Photo</h4>
-                                    </div>
-                                    <ul className="list-disc list-inside text-slate-600 space-y-2 text-sm">
-                                        <li>Certificate of completion</li>
-                                        <li>GitHub repository access</li>
-                                        <li>Closing remarks + thank you</li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-
-            const renderSchedule = () => {
-                const day1Events = [
-                    { time: "9:00 – 10:30", title: "Module 1: Gene Regulation & Genomics Basics" },
-                    { time: "10:30 – 12:00", title: "3D genome, enhancers, histone marks & chromatin model-building activity" },
-                    { time: "12:00 – 1:00", title: "Lunch & Networking (Provided)", type: "break" },
-                    { time: "1:00 – 2:15", title: "Module 2: Coding for Beginners – datasets, variables & plotting" },
-                    { time: "2:15 – 3:30", title: "Activity: Guided Jupyter/R Notebook visualization" },
-                    { time: "3:30 – 4:00", title: "Day 1 recap & Q&A" },
-                ];
-
-                const day2Events = [
-                    {
-                        time: "9:00 – 10:30",
-                        title: "Module 3: Genomics + Chromatin Integration – RNA-seq & DNA-seq (sequencing pipeline overview)"
-                    },
-                    {
-                        time: "10:30 – 12:00",
-                        title: "Module 3 (continued): Run a toy sequencing pipeline & visualize variants/peaks in IGV and genome tracks"
-                    },
-                    { time: "12:00 – 1:00", title: "Lunch & Faculty Q&A", type: "break" },
-                    {
-                        time: "1:00 – 2:15",
-                        title: "Module 4: Imaging + Machine Learning – single-molecule tracking & imaging feature extraction"
-                    },
-                    {
-                        time: "2:15 – 3:30",
-                        title: "Module 4 (continued): Imaging + Machine Learning – use imaging features in a simple ML workflow"
-                    },
-                    {
-                        time: "3:30 – 4:15",
-                        title: "Module 5: Career Design – PhD vs Biotech vs Clinical, cold-emailing, LinkedIn"
-                    },
-                    {
-                        time: "4:15 – 5:00",
-                        title: "Module 6: Certificates, GitHub access, group photo & closing remarks"
-                    },
-                ];
-
-                return (
-                    <div className="py-16 bg-slate-50">
-                        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                            <div className="text-center mb-12">
-                                <h2 className="text-3xl font-bold text-slate-900">Daily Schedule</h2>
-                            </div>
-
-                            <div className="grid md:grid-cols-2 gap-8">
-                                {/* Day 1 Column */}
-                                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                                    <div className="bg-slate-900 p-6 text-white text-center">
-                                        <h3 className="text-xl font-bold">Day 1: Foundations</h3>
-                                        <p className="text-green-400 text-sm">Gene Regulation & Coding Basics</p>
-                                    </div>
-                                    <div className="p-6">
-                                        {day1Events.map((event, idx) => (
-                                            <div 
-                                                key={idx} 
-                                                className={`flex gap-4 py-4 ${idx !== day1Events.length - 1 ? "border-b border-slate-100" : ""}`}
-                                            >
-                                                <div className="w-28 flex-shrink-0 text-sm font-bold text-slate-500">
-                                                    {event.time}
-                                                </div>
-                                                <div
-                                                    className={`${
-                                                        event.type === "break"
-                                                            ? "text-green-600 font-medium italic"
-                                                            : "text-slate-800 font-medium"
-                                                    }`}
-                                                >
-                                                    {event.title}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Day 2 Column */}
-                                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                                    <div className="bg-slate-900 p-6 text-white text-center">
-                                        <h3 className="text-xl font-bold">Day 2: Application</h3>
-                                        <p className="text-blue-400 text-sm">Applied Genomics, ML & Careers</p>
-                                    </div>
-                                    <div className="p-6">
-                                        {day2Events.map((event, idx) => (
-                                            <div 
-                                                key={idx} 
-                                                className={`flex gap-4 py-4 ${idx !== day2Events.length - 1 ? "border-b border-slate-100" : ""}`}
-                                            >
-                                                <div className="w-28 flex-shrink-0 text-sm font-bold text-slate-500">
-                                                    {event.time}
-                                                </div>
-                                                <div
-                                                    className={`${
-                                                        event.type === "break"
-                                                            ? "text-blue-600 font-medium italic"
-                                                            : "text-slate-800 font-medium"
-                                                    }`}
-                                                >
-                                                    {event.title}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                );
-            };
-
-            const renderStudents = () => (
-                <div className="py-16 bg-white">
-                    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex flex-col md:flex-row gap-12">
-                            <div className="flex-1">
-                                <h2 className="text-3xl font-bold text-slate-900 mb-6">For Students</h2>
-                                <p className="text-lg text-slate-600 mb-8">
-                                    This bootcamp is designed for students who are curious about how technology is changing biology. You do not need to be a computer genius to attend!
-                                </p>
-                                
-                                <div className="space-y-8">
-                                    <div>
-                                        <h3 className="text-xl font-bold text-slate-900 mb-4 border-b pb-2">What You Will Learn</h3>
-                                        <ul className="space-y-3">
-                                            <li className="flex gap-3"><i className="fa-solid fa-circle-check text-green-500 mt-1 flex-shrink-0"></i> How cells turn genes ON/OFF</li>
-                                            <li className="flex gap-3"><i className="fa-solid fa-circle-check text-green-500 mt-1 flex-shrink-0"></i> How to write code to understand biology</li>
-                                            <li className="flex gap-3"><i className="fa-solid fa-circle-check text-green-500 mt-1 flex-shrink-0"></i> How scientists track molecules inside living cells</li>
-                                        </ul>
-                                    </div>
-
-                                    <div>
-                                        <h3 className="text-xl font-bold text-slate-900 mb-4 border-b pb-2">Requirements</h3>
-                                        <ul className="space-y-3">
-                                            <li className="flex gap-3"><i className="fa-solid fa-circle-check text-blue-500 mt-1 flex-shrink-0"></i> Interest in science/tech</li>
-                                            <li className="flex gap-3"><i className="fa-solid fa-circle-check text-blue-500 mt-1 flex-shrink-0"></i> Basic algebra knowledge</li>
-                                            <li className="flex gap-3"><i className="fa-solid fa-circle-check text-blue-500 mt-1 flex-shrink-0"></i> Laptop recommended (we have loaners!)</li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <div className="mt-10">
-                                    <button onClick={() => setActiveTab('apply')} className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold shadow-lg transition">
-                                        Apply Now
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="md:w-1/3">
-                                <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                                    <h3 className="font-bold text-lg mb-4 text-slate-900">What You Get</h3>
-                                    <ul className="space-y-4">
-                                        <li className="flex items-center gap-3 bg-white p-3 rounded-lg shadow-sm">
-                                            <i className="fa-solid fa-graduation-cap text-green-600"></i>
-                                            <span className="text-sm font-medium">Certificate of Completion</span>
-                                        </li>
-                                        <li className="flex items-center gap-3 bg-white p-3 rounded-lg shadow-sm">
-                                            <i className="fa-solid fa-code text-blue-600"></i>
-                                            <span className="text-sm font-medium">GitHub Starter Portfolio</span>
-                                        </li>
-                                        <li className="flex items-center gap-3 bg-white p-3 rounded-lg shadow-sm">
-                                            <i className="fa-solid fa-file-lines text-purple-600"></i>
-                                            <span className="text-sm font-medium">Cheat Sheets (Python/R)</span>
-                                        </li>
-                                        <li className="flex items-center gap-3 bg-white p-3 rounded-lg shadow-sm">
-                                            <i className="fa-solid fa-users text-orange-600"></i>
-                                            <span className="text-sm font-medium">Mentorship Network Access</span>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-
-            const renderTeachers = () => (
-                <div className="py-16 bg-slate-50">
-                    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <h2 className="text-3xl font-bold text-slate-900 mb-6">For Teachers & Educators</h2>
-                        
-                        <div className="bg-white p-8 rounded-2xl shadow-sm mb-8">
-                            <h3 className="text-xl font-bold text-slate-900 mb-4">Why Encourage Your Students?</h3>
-                            <p className="text-slate-600 mb-6">
-                                This program bridges the gap between standard biology curriculum and modern research techniques. It aligns with AP Biology and NGSS standards regarding heredity, gene expression, and scientific modeling.
-                            </p>
-                            <div className="grid sm:grid-cols-2 gap-4">
-                                <div className="bg-blue-50 p-4 rounded-lg text-blue-900 font-medium text-center">Great for STEM Clubs</div>
-                                <div className="bg-green-50 p-4 rounded-lg text-green-900 font-medium text-center">Ideal for Honors Bio/AVID</div>
-                            </div>
-                        </div>
-
-                        <div className="bg-white p-8 rounded-2xl shadow-sm mb-8">
-                            <h3 className="text-xl font-bold text-slate-900 mb-4">Downloadable Classroom Resources</h3>
-                            <p className="text-slate-600 mb-4 text-sm">We provide materials you can use in your own classroom.</p>
-                            <div className="space-y-3">
-                                <button className="flex w-full items-center justify-between p-3 border border-slate-200 rounded-lg hover:bg-slate-50 group">
-                                    <span className="flex items-center gap-3 font-medium text-slate-700">
-                                        <i className="fa-solid fa-download text-slate-400 group-hover:text-green-500"></i> Chromatin Model Worksheet
-                                    </span>
-                                    <span className="text-xs text-slate-400">PDF</span>
-                                </button>
-                                <button className="flex w-full items-center justify-between p-3 border border-slate-200 rounded-lg hover:bg-slate-50 group">
-                                    <span className="flex items-center gap-3 font-medium text-slate-700">
-                                        <i className="fa-solid fa-download text-slate-400 group-hover:text-green-500"></i> Intro to Coding for Biologists Slides
-                                    </span>
-                                    <span className="text-xs text-slate-400">PPTX</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="bg-slate-900 text-white p-8 rounded-2xl text-center">
-                            <h3 className="text-xl font-bold mb-2">Partner With Us</h3>
-                            <p className="text-slate-300 mb-6">Interested in a long-term collaboration for your school?</p>
-                            <button 
-                                onClick={() => setActiveTab('contact')}
-                                className="bg-white text-slate-900 px-6 py-2 rounded-lg font-bold hover:bg-slate-100 transition"
-                            >
-                                Contact Program Director
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            );
-
-            const renderApply = () => (
-                <div className="py-16 bg-white">
-                    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="text-center mb-10">
-                            <h2 className="text-3xl font-bold text-slate-900 mb-4">Apply Now</h2>
-                            <p className="text-slate-600">Spaces are limited to ensure quality mentorship. Please fill out the form below.</p>
-                        </div>
-
-                        <div className="bg-slate-50 p-8 rounded-2xl border border-slate-200 shadow-sm">
-                            {/* Mock Form */}
-                            <div className="space-y-6">
-                                <div className="grid md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
-                                        <input type="text" className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none" placeholder="Jane Doe" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
-                                        <input type="email" className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none" placeholder="jane@school.edu" />
-                                    </div>
-                                </div>
-
-                                <div className="grid md:grid-cols-2 gap-6">
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">School/Institution</label>
-                                        <input type="text" className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none" placeholder="High School or College" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">Current Grade Level</label>
-                                        <select className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none">
-                                            <option>Select...</option>
-                                            <option>High School Junior</option>
-                                            <option>High School Senior</option>
-                                            <option>Community College</option>
-                                            <option>Undergraduate Freshman/Sophomore</option>
-                                            <option>Other</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Why do you want to attend?</label>
-                                    <textarea rows={4} className="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none" placeholder="Tell us a bit about your interest in science or coding..."></textarea>
-                                </div>
-
-                                <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-100 text-sm text-yellow-800">
-                                    <strong>Selection Note:</strong> Priority is given to students from URM backgrounds, first-generation college students, and applicants with high motivation.
-                                </div>
-
-                                <button className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-lg transition transform active:scale-95 shadow-lg">
-                                    Submit Application
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-
-            const renderTeam = () => (
-                <div className="py-16 bg-slate-50">
-                    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <h2 className="text-3xl font-bold text-slate-900 mb-12 text-center">Meet the Team</h2>
-                        
-                        <div className="grid md:grid-cols-3 gap-8">
-                            {/* Director */}
-                            <div className="bg-white p-6 rounded-2xl shadow-sm text-center">
-                                <div className="w-32 h-32 bg-slate-200 rounded-full mx-auto mb-4 flex items-center justify-center text-4xl">👨‍🔬</div>
-                                <h3 className="text-xl font-bold text-slate-900">Ahmed Saif</h3>
-                                <p className="text-green-600 font-medium text-sm mb-4">Lead Instructor</p>
-                                <p className="text-slate-600 text-sm">Specializes in epigenetics and chromatin biology. Passionate about open source science.</p>
-                            </div>
-
-                            {/* Faculty Sponsor */}
-                            <div className="bg-white p-6 rounded-2xl shadow-sm text-center">
-                                <div className="w-32 h-32 bg-slate-200 rounded-full mx-auto mb-4 flex items-center justify-center text-4xl">🔬</div>
-                                <h3 className="text-xl font-bold text-slate-900">Dr. Ren</h3>
-                                <p className="text-blue-600 font-medium text-sm mb-4">Faculty Sponsor</p>
-                                <p className="text-slate-600 text-sm">Principal Investigator overseeing the lab and bootcamp curriculum development.</p>
-                            </div>
-
-                            {/* Mentors */}
-                            <div className="bg-white p-6 rounded-2xl shadow-sm text-center">
-                                <div className="w-32 h-32 bg-slate-200 rounded-full mx-auto mb-4 flex items-center justify-center text-4xl">👩‍💻</div>
-                                <h3 className="text-xl font-bold text-slate-900">Graduate Mentors</h3>
-                                <p className="text-purple-600 font-medium text-sm mb-4">PhD Candidates</p>
-                                <p className="text-slate-600 text-sm">A team of 5 PhD students specializing in NGS, Imaging, and Coding.</p>
-                            </div>
-                        </div>
-
-                        <div className="mt-16 text-center">
-                            <h3 className="text-lg font-bold text-slate-500 uppercase tracking-wide mb-8">Supported By</h3>
-                            <div className="flex flex-wrap justify-center gap-8 opacity-60 grayscale hover:grayscale-0 transition duration-500">
-                                {/* Mock Logo Placeholders */}
-                                <div className="h-12 w-32 bg-slate-300 rounded flex items-center justify-center font-bold text-slate-500">UNCC Biology</div>
-                                <div className="h-12 w-32 bg-slate-300 rounded flex items-center justify-center font-bold text-slate-500">CCI</div>
-                                <div className="h-12 w-32 bg-slate-300 rounded flex items-center justify-center font-bold text-slate-500">NSF</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-
-            const renderResources = () => (
-                <div className="py-16 bg-white">
-                    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <h2 className="text-3xl font-bold text-slate-900 mb-4">Resources Hub</h2>
-                        <p className="text-slate-600 mb-12">Keep learning after the bootcamp ends. Access our datasets and guides.</p>
-
-                        <div className="grid gap-6">
-                            <div className="flex items-start gap-4 p-6 border border-slate-200 rounded-xl hover:bg-slate-50 transition">
-                                <div className="bg-blue-100 p-3 rounded-lg"><i className="fa-solid fa-code text-blue-600"></i></div>
-                                <div>
-                                    <h3 className="font-bold text-lg text-slate-900">Starter Jupyter Notebooks</h3>
-                                    <p className="text-slate-600 text-sm mb-2">Templates for plotting RNA-seq data and basic Python syntax.</p>
-                                    <button className="text-blue-600 text-sm font-bold flex items-center gap-1 hover:underline">Download .ipynb <i className="fa-solid fa-download ml-1 text-xs"></i></button>
-                                </div>
-                            </div>
-
-                            <div className="flex items-start gap-4 p-6 border border-slate-200 rounded-xl hover:bg-slate-50 transition">
-                                <div className="bg-green-100 p-3 rounded-lg"><i className="fa-solid fa-file-lines text-green-600"></i></div>
-                                <div>
-                                    <h3 className="font-bold text-lg text-slate-900">Example Datasets (Toy-Sized)</h3>
-                                    <p className="text-slate-600 text-sm mb-2">Cleaned CSV files representing gene expression counts.</p>
-                                    <button className="text-green-600 text-sm font-bold flex items-center gap-1 hover:underline">Download .zip <i className="fa-solid fa-download ml-1 text-xs"></i></button>
-                                </div>
-                            </div>
-
-                            <div className="flex items-start gap-4 p-6 border border-slate-200 rounded-xl hover:bg-slate-50 transition">
-                                <div className="bg-purple-100 p-3 rounded-lg"><i className="fa-solid fa-book-open text-purple-600"></i></div>
-                                <div>
-                                    <h3 className="font-bold text-lg text-slate-900">Bioinformatics Career Guide</h3>
-                                    <p className="text-slate-600 text-sm mb-2">A PDF guide on applying to REUs, grad school, and industry jobs.</p>
-                                    <button className="text-purple-600 text-sm font-bold flex items-center gap-1 hover:underline">Download PDF <i className="fa-solid fa-download ml-1 text-xs"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-
-            const renderFAQ = () => (
-                <div className="py-16 bg-slate-50">
-                    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <h2 className="text-3xl font-bold text-slate-900 mb-10 text-center">Frequently Asked Questions</h2>
-                        
-                        <div className="space-y-4">
-                            <div className="bg-white p-6 rounded-xl shadow-sm">
-                                <h3 className="font-bold text-lg text-slate-900 mb-2">Do I need coding experience?</h3>
-                                <p className="text-slate-600">No! We start from zero. The goal is to introduce you to the logic, not make you an expert in two days.</p>
-                            </div>
-                            <div className="bg-white p-6 rounded-xl shadow-sm">
-                                <h3 className="font-bold text-lg text-slate-900 mb-2">Is the program really free?</h3>
-                                <p className="text-slate-600">Yes. Lunch is provided on both days as well.</p>
-                            </div>
-                            <div className="bg-white p-6 rounded-xl shadow-sm">
-                                <h3 className="font-bold text-lg text-slate-900 mb-2">Do I need a laptop?</h3>
-                                <p className="text-slate-600">Bringing one helps you save your work, but we have loaner laptops available for anyone who needs one.</p>
-                            </div>
-                            <div className="bg-white p-6 rounded-xl shadow-sm">
-                                <h3 className="font-bold text-lg text-slate-900 mb-2">Will I get a certificate?</h3>
-                                <p className="text-slate-600">Yes, you will receive an official Certificate of Completion, which is great for college applications and resumes.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-
-            const renderContact = () => (
-                <div className="py-16 bg-white">
-                    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <h2 className="text-3xl font-bold text-slate-900 mb-8 text-center">Contact Us</h2>
-                        
-                        <div className="grid md:grid-cols-2 gap-12">
-                            <div>
-                                <h3 className="text-xl font-bold mb-4">Get in Touch</h3>
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-3 text-slate-600">
-                                        <i className="fa-solid fa-envelope text-green-500"></i>
-                                        <span>asaif@uncc.edu</span>
-                                    </div>
-                                    <div className="flex items-center gap-3 text-slate-600">
-                                        <i className="fa-solid fa-location-dot text-green-500"></i>
-                                        <span>UNC Charlotte, Science Building</span>
-                                    </div>
-                                </div>
-                                
-                                <h3 className="text-xl font-bold mt-8 mb-4">Follow Us</h3>
-                                <div className="flex gap-4">
-                                    <button className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 transition text-blue-600"><i className="fa-brands fa-twitter text-xl"></i></button>
-                                    <button className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 transition text-blue-800"><i className="fa-brands fa-linkedin text-xl"></i></button>
-                                    <button className="p-3 bg-slate-100 rounded-full hover:bg-slate-200 transition text-pink-600"><i className="fa-brands fa-instagram text-xl"></i></button>
-                                </div>
-                            </div>
-
-                            <div className="bg-slate-50 p-6 rounded-xl border border-slate-200">
-                                <h3 className="font-bold mb-4">Send a Message</h3>
-                                <textarea className="w-full p-3 border border-slate-300 rounded-lg mb-4 h-32 outline-none focus:border-green-500" placeholder="How can we help?"></textarea>
-                                <button className="bg-slate-900 text-white px-6 py-2 rounded-lg font-bold hover:bg-slate-800">Send</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            );
-
-            const renderContent = () => {
-                switch (activeTab) {
-                case 'home': return <><Hero /><Highlights /><ImpactStats /></>;
-                case 'about': return renderAbout();
-                case 'curriculum': return renderCurriculum();
-                case 'schedule': return renderSchedule();
-                case 'students': return renderStudents();
-                case 'teachers': return renderTeachers();
-                case 'team': return renderTeam();
-                case 'resources': return renderResources();
-                case 'faq': return renderFAQ();
-                case 'contact': return renderContact();
-                case 'apply': return renderApply();
-                default: return <><Hero /><Highlights /><ImpactStats /></>;
-                }
-            };
-
-            return (
-                <div className="min-h-screen flex flex-col font-sans text-slate-800">
-                {/* Navigation */}
-                <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
-                        <div 
-                            className="flex items-center gap-2 font-extrabold text-xl tracking-tight cursor-pointer"
-                            onClick={() => setActiveTab('home')}
-                        >
-                        <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-blue-600 rounded-lg flex items-center justify-center text-white">
-                            <i className="fa-solid fa-dna"></i>
-                        </div>
-                        <span className="text-slate-900">CBB<span className="hidden sm:inline text-slate-500 font-normal">.CLT</span></span>
-                        </div>
-
-                        {/* Desktop Nav */}
-                        <nav className="hidden lg:flex space-x-1">
-                        {navItems.slice(0, 5).map(item => (
-                            <button
-                            key={item.id}
-                            onClick={() => setActiveTab(item.id)}
-                            className={`px-3 py-2 rounded-md text-sm font-medium transition ${
-                                activeTab === item.id 
-                                ? 'bg-green-50 text-green-700' 
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                            }`}
-                            >
-                            {item.label}
-                            </button>
-                        ))}
-                        <div className="h-6 w-px bg-slate-300 mx-2 self-center"></div>
-                        {navItems.slice(5, 7).map(item => (
-                            <button
-                            key={item.id}
-                            onClick={() => setActiveTab(item.id)}
-                            className={`px-3 py-2 rounded-md text-sm font-medium transition ${
-                            activeTab === item.id 
-                                ? 'bg-green-50 text-green-700' 
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                            }`}
-                        >
-                            {item.label}
-                        </button>
-                        ))}
-                        <button 
-                            onClick={() => setActiveTab('apply')}
-                            className="ml-4 px-4 py-2 bg-slate-900 text-white text-sm font-bold rounded-lg hover:bg-slate-800 transition"
-                        >
-                            Apply
-                        </button>
-                        </nav>
-
-                        {/* Mobile Menu Button */}
-                        <button 
-                        className="lg:hidden p-2 text-slate-600"
-                        onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        >
-                        {isMenuOpen ? <i className="fa-solid fa-xmark"></i> : <i className="fa-solid fa-bars"></i>}
-                        </button>
-                    </div>
-                    </div>
-
-                    {/* Mobile Nav */}
-                    {isMenuOpen && (
-                    <div className="lg:hidden bg-white border-b border-slate-200">
-                        <div className="px-2 pt-2 pb-3 space-y-1">
-                        {navItems.map(item => (
-                            <button
-                            key={item.id}
-                            onClick={() => setActiveTab(item.id)}
-                            className={`block w-full text-left px-3 py-3 rounded-md text-base font-medium ${
-                                activeTab === item.id 
-                                ? 'bg-green-50 text-green-700' 
-                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
-                            }`}
-                            >
-                            {item.label}
-                            </button>
-                        ))}
-                        <button 
-                            onClick={() => setActiveTab('apply')}
-                            className="block w-full text-left px-3 py-3 rounded-md text-base font-bold bg-green-500 text-white mt-2"
-                        >
-                            Apply Now
-                        </button>
-                        </div>
-                    </div>
+                <div className="space-y-2">
+                   <div className="flex items-center gap-2 text-slate-600">
+                      <MapPin size={16} className="text-slate-400" />
+                      <span>{exp.institution}</span>
+                   </div>
+                   {exp.supervisor && (
+                      <div className="flex items-center gap-2 text-slate-600">
+                        <Users size={16} className="text-slate-400" />
+                        <span>Supervisor: <span className="font-semibold text-slate-800">{exp.supervisor}</span></span>
+                      </div>
                     )}
-                </header>
-
-                {/* Main Content */}
-                <main className="flex-grow">
-                    {renderContent()}
-                </main>
-
-                {/* Footer */}
-                <footer className="bg-slate-900 text-slate-400 py-12 border-t border-slate-800">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-4 gap-8">
-                    <div className="col-span-1 md:col-span-2">
-                        <div className="flex items-center gap-2 font-bold text-white text-xl mb-4">
-                        <i className="fa-solid fa-dna text-green-400"></i> Charlotte Bioinformatics Bootcamp
-                        </div>
-                        <p className="max-w-sm mb-6 text-sm">
-                        Empowering the next generation of scientists with coding, machine learning skills, and genomic insights. Hosted at UNC Charlotte.
-                        </p>
-                        <div className="flex gap-4">
-                        <i className="fa-brands fa-twitter hover:text-white cursor-pointer text-xl"></i>
-                        <i className="fa-brands fa-linkedin hover:text-white cursor-pointer text-xl"></i>
-                        <i className="fa-brands fa-instagram hover:text-white cursor-pointer text-xl"></i>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <h4 className="text-white font-bold mb-4">Quick Links</h4>
-                        <ul className="space-y-2 text-sm">
-                        <li className="hover:text-green-400 cursor-pointer" onClick={() => setActiveTab('about')}>About</li>
-                        <li className="hover:text-green-400 cursor-pointer" onClick={() => setActiveTab('curriculum')}>Curriculum</li>
-                        <li className="hover:text-green-400 cursor-pointer" onClick={() => setActiveTab('teachers')}>For Teachers</li>
-                        <li className="hover:text-green-400 cursor-pointer" onClick={() => setActiveTab('faq')}>FAQ</li>
-                        </ul>
-                    </div>
-
-                    <div>
-                        <h4 className="text-white font-bold mb-4">Legal & Accessibility</h4>
-                        <ul className="space-y-2 text-sm">
-                        <li className="hover:text-green-400 cursor-pointer">Accessibility Statement</li>
-                        <li className="hover:text-green-400 cursor-pointer">Privacy Policy</li>
-                        <li className="hover:text-green-400 cursor-pointer">Code of Conduct</li>
-                        </ul>
-                    </div>
-                    </div>
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-slate-800 text-center text-xs">
-                    &copy; 2025 Charlotte Bioinformatics Bootcamp. All rights reserved.
-                    </div>
-                </footer>
                 </div>
-            );
-        };
+              </div>
+            </div>
+          </FadeIn>
+        ))}
+      </div>
+    </div>
+  </section>
+);
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
-</body>
-</html>
+const Skills = () => (
+  <section id="skills" className="relative py-24 bg-slate-900 text-white overflow-hidden">
+    {/* Mountain/Ice Background Overlay */}
+    <div className="absolute inset-0 opacity-10 z-0 mix-blend-overlay">
+      <img src={PORTFOLIO_DATA.images.skillsBackground} alt="" className="w-full h-full object-cover" />
+    </div>
+    
+    <div className="relative z-10 max-w-7xl mx-auto px-6">
+      <SectionHeader title="Technical Expertise" subtitle="Mastering Both Worlds" light />
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+        {/* Dry Lab */}
+        <FadeIn delay={0}>
+          <div className="bg-white/5 backdrop-blur-xl p-8 rounded-3xl border border-white/10 hover:bg-white/10 transition-colors duration-300 h-full">
+            <div className="flex items-center gap-4 mb-8 pb-4 border-b border-white/10">
+              <div className="p-3 bg-cyan-500/20 rounded-xl text-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.3)]">
+                <Cpu size={32} />
+              </div>
+              <div>
+                 <h3 className="text-2xl font-bold text-white">In Silico & Programming</h3>
+                 <p className="text-cyan-200/60 text-sm">Computational Biology & AI</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {PORTFOLIO_DATA.skills.dry.map((skill, i) => (
+                <span key={i} className="px-4 py-2 bg-cyan-950/50 border border-cyan-500/20 text-cyan-100 rounded-lg text-sm hover:bg-cyan-500 hover:text-white transition-all cursor-default hover:scale-105 transform duration-200">
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        </FadeIn>
 
+        {/* Wet Lab */}
+        <FadeIn delay={200}>
+          <div className="bg-white/5 backdrop-blur-xl p-8 rounded-3xl border border-white/10 hover:bg-white/10 transition-colors duration-300 h-full">
+            <div className="flex items-center gap-4 mb-8 pb-4 border-b border-white/10">
+              <div className="p-3 bg-emerald-500/20 rounded-xl text-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.3)]">
+                <Microscope size={32} />
+              </div>
+              <div>
+                 <h3 className="text-2xl font-bold text-white">Laboratory Skills</h3>
+                 <p className="text-emerald-200/60 text-sm">In Vivo & In Vitro</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              {PORTFOLIO_DATA.skills.wet.map((skill, i) => (
+                <span key={i} className="px-4 py-2 bg-emerald-950/50 border border-emerald-500/20 text-emerald-100 rounded-lg text-sm hover:bg-emerald-500 hover:text-white transition-all cursor-default hover:scale-105 transform duration-200">
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
+        </FadeIn>
+      </div>
+    </div>
+  </section>
+);
 
+const ResearchHub = () => {
+  const [activeTab, setActiveTab] = useState('published');
+  
+  const tabs = [
+    { id: 'published', label: 'Published Papers', icon: FileText },
+    { id: 'submitted', label: 'Submitted Manuscripts', icon: Layers },
+    { id: 'seminars', label: 'Conferences & Seminars', icon: Users },
+  ];
+
+  return (
+    <section id="research" className="py-24 bg-slate-50">
+      <div className="max-w-7xl mx-auto px-6">
+        <SectionHeader title="Research Hub" subtitle="Publications, Presentations & Current Focus" />
+
+        {/* --- Current Projects Section --- */}
+        <div className="mb-20">
+          <div className="flex items-center gap-3 mb-8">
+             <div className="w-2 h-8 bg-red-500 rounded-full"></div>
+             <h3 className="text-2xl font-bold text-slate-800">Current Research Focus</h3>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+             {PORTFOLIO_DATA.research.currentProjects.map((proj, idx) => (
+               <FadeIn key={idx} delay={idx * 150}>
+                 <div className="group relative rounded-2xl overflow-hidden shadow-lg h-80">
+                    <img src={proj.image} alt={proj.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent p-8 flex flex-col justify-end">
+                       <div className="flex items-center gap-2 mb-2">
+                          <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider animate-pulse">
+                             {proj.status}
+                          </span>
+                          <span className="text-blue-300 text-xs font-bold uppercase tracking-wider border border-blue-400/30 px-2 py-0.5 rounded">
+                             {proj.tech}
+                          </span>
+                       </div>
+                       <h4 className="text-2xl font-bold text-white mb-2 leading-tight">{proj.title}</h4>
+                       <p className="text-slate-300 text-sm line-clamp-2 mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-4 group-hover:translate-y-0">
+                         {proj.desc}
+                       </p>
+                    </div>
+                 </div>
+               </FadeIn>
+             ))}
+          </div>
+        </div>
+
+        {/* --- Tabbed Publications --- */}
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100">
+           {/* Tab Header */}
+           <div className="flex border-b border-slate-100 overflow-x-auto">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex items-center gap-2 px-6 py-5 text-sm font-bold uppercase tracking-wider transition-colors whitespace-nowrap ${
+                    activeTab === tab.id 
+                      ? 'bg-slate-900 text-white' 
+                      : 'bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800'
+                  }`}
+                >
+                  <tab.icon size={18} />
+                  {tab.label}
+                </button>
+              ))}
+           </div>
+
+           {/* Tab Content */}
+           <div className="p-8 min-h-[400px]">
+             
+             {activeTab === 'published' && (
+               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                 {PORTFOLIO_DATA.research.published.map((pub, idx) => (
+                   <div key={idx} className="border-l-4 border-green-500 bg-slate-50 p-6 rounded-r-xl">
+                      <div className="flex flex-col md:flex-row gap-4 justify-between md:items-center">
+                         <div>
+                            <div className="flex items-center gap-2 mb-2">
+                               <span className="text-green-600 bg-green-100 px-2 py-0.5 rounded text-xs font-bold uppercase">Published</span>
+                               <span className="text-blue-600 bg-blue-100 px-2 py-0.5 rounded text-xs font-bold">IF: {pub.impactFactor}</span>
+                            </div>
+                            <h4 className="text-xl font-bold text-slate-800 mb-2">{pub.title}</h4>
+                            <p className="text-slate-600 italic mb-2">{pub.journal} <span className="text-slate-400">| {pub.year}</span></p>
+                            <p className="text-sm text-slate-500">
+                               {pub.authors.split("Saif, A.").map((part, i, arr) => (
+                                  <React.Fragment key={i}>
+                                    {part}
+                                    {i < arr.length - 1 && <span className="text-red-600 font-bold underline">Saif, A.</span>}
+                                  </React.Fragment>
+                               ))}
+                            </p>
+                         </div>
+                         <ExternalLink className="text-slate-300" size={24} />
+                      </div>
+                   </div>
+                 ))}
+               </div>
+             )}
+
+             {activeTab === 'submitted' && (
+               <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                 {PORTFOLIO_DATA.research.submitted.map((pub, idx) => (
+                   <div key={idx} className="border-l-4 border-amber-500 bg-amber-50/30 p-6 rounded-r-xl">
+                      <div className="flex flex-col md:flex-row gap-4 justify-between md:items-center">
+                         <div>
+                            <div className="flex items-center gap-2 mb-2">
+                               <span className="text-amber-600 bg-amber-100 px-2 py-0.5 rounded text-xs font-bold uppercase">Under Review</span>
+                               <span className="text-blue-600 bg-blue-100 px-2 py-0.5 rounded text-xs font-bold">Target IF: {pub.impactFactor}</span>
+                            </div>
+                            <h4 className="text-xl font-bold text-slate-800 mb-2">{pub.title}</h4>
+                            <p className="text-slate-600 italic mb-2">{pub.journal}</p>
+                            <p className="text-sm text-slate-500">
+                               {pub.authors.split("Saif, A.").map((part, i, arr) => (
+                                  <React.Fragment key={i}>
+                                    {part}
+                                    {i < arr.length - 1 && <span className="text-red-600 font-bold underline">Saif, A.</span>}
+                                  </React.Fragment>
+                               ))}
+                            </p>
+                         </div>
+                      </div>
+                   </div>
+                 ))}
+               </div>
+             )}
+
+             {activeTab === 'seminars' && (
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                 {PORTFOLIO_DATA.research.seminars.map((sem, idx) => (
+                   <div key={idx} className="bg-slate-50 p-6 rounded-xl border border-slate-100 hover:shadow-md transition-shadow">
+                      <div className="flex items-center gap-2 mb-3">
+                         <Calendar size={16} className="text-blue-500" />
+                         <span className="text-sm font-bold text-blue-500 uppercase">{sem.date}</span>
+                      </div>
+                      <h4 className="text-lg font-bold text-slate-800 mb-2">{sem.title}</h4>
+                      <p className="text-slate-600 text-sm mb-3">{sem.event}</p>
+                      <span className="inline-block bg-white border border-slate-200 text-slate-500 text-xs font-bold px-3 py-1 rounded-full">
+                         {sem.type}
+                      </span>
+                   </div>
+                 ))}
+               </div>
+             )}
+
+           </div>
+        </div>
+
+      </div>
+    </section>
+  );
+};
+
+const Mentors = () => (
+  <section className="py-24 bg-slate-50">
+    <div className="max-w-6xl mx-auto px-6">
+      <SectionHeader title="Mentors" subtitle="Guided by the Best" />
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {PORTFOLIO_DATA.mentors.map((mentor, idx) => (
+          <FadeIn key={idx} delay={idx * 150}>
+            <div className="bg-white rounded-xl overflow-hidden shadow-lg group hover:-translate-y-2 transition-transform duration-300">
+              <div className={`h-32 ${mentor.color} flex items-center justify-center relative overflow-hidden`}>
+                <div className="absolute inset-0 bg-black/10"></div>
+                <Award size={48} className="text-white/50 group-hover:text-white/80 transition-colors relative z-10" />
+              </div>
+              <div className="p-6 text-center -mt-12 relative z-10">
+                 <div className="w-24 h-24 mx-auto bg-white rounded-full p-1 shadow-md mb-4 flex items-center justify-center text-slate-300 border-4 border-white">
+                    <span className="text-4xl font-serif font-bold text-slate-800">{mentor.name.charAt(0)}</span>
+                 </div>
+                 <h3 className="text-lg font-bold text-slate-800">{mentor.name}</h3>
+                 <p className="text-blue-600 text-sm font-medium mb-2">{mentor.title}</p>
+                 <p className="text-slate-500 text-xs">{mentor.uni}</p>
+              </div>
+            </div>
+          </FadeIn>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+const Gallery = () => (
+  <section className="py-24 bg-white border-t border-slate-100">
+    <div className="max-w-7xl mx-auto px-6">
+      <SectionHeader title="Academic Life" subtitle="Moments from the Wet Lab" />
+      
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {PORTFOLIO_DATA.images.gallery.map((img, idx) => (
+          <FadeIn key={idx} delay={idx * 100}>
+            <div className="relative group overflow-hidden rounded-2xl aspect-square cursor-pointer shadow-md">
+              <img 
+                src={img} 
+                alt="Gallery" 
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-blue-900/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <Microscope className="text-white drop-shadow-lg" size={40} />
+              </div>
+            </div>
+          </FadeIn>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
+const Footer = () => (
+  <footer className="bg-slate-900 text-slate-400 py-16 border-t border-slate-800">
+    <div className="max-w-7xl mx-auto px-6 text-center">
+      <h2 className="text-4xl font-serif text-white font-bold mb-8 tracking-wider">{PORTFOLIO_DATA.personal.name}</h2>
+      
+      <div className="flex justify-center gap-8 mb-12 flex-wrap">
+        {['Home', 'About', 'Education', 'Experience', 'Research'].map((item) => (
+           <a key={item} href={`#${item.toLowerCase()}`} className="text-sm font-bold uppercase tracking-widest hover:text-blue-400 transition-colors">
+             {item}
+           </a>
+        ))}
+      </div>
+
+      <div className="flex justify-center gap-6 mb-12">
+        {Object.keys(PORTFOLIO_DATA.personal.socials).map((key) => (
+           <a key={key} href={PORTFOLIO_DATA.personal.socials[key]} className="p-3 bg-white/5 rounded-full hover:bg-white/20 text-white transition-all">
+             {key === 'linkedin' && <Linkedin size={20} />}
+             {key === 'twitter' && <Twitter size={20} />}
+             {key === 'facebook' && <Facebook size={20} />}
+             {key === 'instagram' && <Instagram size={20} />}
+           </a>
+        ))}
+      </div>
+
+      <p className="text-xs text-slate-600 uppercase tracking-widest">
+        &copy; {new Date().getFullYear()} Ahmed Saif. All rights reserved.
+      </p>
+    </div>
+  </footer>
+);
+
+const App = () => {
+  return (
+    <div className="font-sans antialiased text-slate-800 scroll-smooth selection:bg-blue-200 selection:text-blue-900">
+      <NavBar />
+      <Hero />
+      <About />
+      <Education />
+      <Experience />
+      <Skills />
+      <ResearchHub />
+      <Mentors />
+      <Gallery />
+      <Footer />
+    </div>
+  );
+};
+
+export default App;
